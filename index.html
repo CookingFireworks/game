@@ -3,19 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>湖南师大附中 · SVG 修正版 Demo</title>
+<title>湖南师大附中 · 可返回/重置 Demo</title>
 <style>
   :root{--bg:#070609;--accent:#d9a36b;}
   html,body{height:100%;margin:0;background:var(--bg);font-family:Segoe UI,Helvetica,Arial;color:#eee}
   #game{max-width:1000px;margin:20px auto;border-radius:8px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7)}
   header{display:flex;align-items:center;padding:12px;background:linear-gradient(90deg,#07080a,#0b0b0b);border-bottom:1px solid rgba(255,255,255,0.03)}
   header h1{margin:0;font-size:18px}
+  header .controls{margin-left:12px;display:flex;gap:8px}
   #stageWrap{background:linear-gradient(180deg,#071017 0%, #0b0709 100%);padding:18px}
   #stage{width:960px;height:520px;margin:0 auto;position:relative;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);background:#081018}
-  /* hotspots */
   .hot{position:absolute;background:transparent;border:0;cursor:pointer;z-index:40}
   .hot:focus{outline:2px solid rgba(217,163,107,0.18)}
-  /* UI */
   #hint{position:absolute;right:18px;top:18px;background:rgba(0,0,0,0.45);padding:8px 12px;border-radius:6px;font-size:13px;color:#ddd;border:1px solid rgba(255,255,255,0.03);z-index:50}
   #inventory{height:84px;padding:10px;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-top:1px solid rgba(255,255,255,0.03)}
   .inv-slot{width:64px;height:64px;border-radius:6px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;color:#cfcfcf;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
@@ -27,45 +26,32 @@
   .dial{width:56px;height:56px;background:#111;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(255,255,255,0.04)}
   .small{font-size:12px;padding:6px 8px;border-radius:6px;background:#222;border:1px solid rgba(255,255,255,0.03);color:#fff;cursor:pointer}
   #win{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.86));display:flex;align-items:center;justify-content:center;z-index:200;color:#f7f2e7;padding:24px;text-align:center;font-size:20px}
-  /* make sure svg under hotspots doesn't catch pointer */
   svg{display:block;pointer-events:none}
-  /* but interactive SVG shapes (if any) can set pointer-events separately */
-  .interactive-svg{pointer-events:auto}
 </style>
 </head>
 <body>
 <div id="game">
   <header>
-    <h1>湖南师大附中 · 修正版 Demo</h1>
+    <h1>湖南师大附中 · 带返回和重置的 Demo</h1>
+    <div class="controls">
+      <button class="btn secondary" id="btn_reset">重置游戏</button>
+    </div>
     <div style="flex:1"></div>
-    <div style="font-size:13px;color:#bbb">已修复点击响应问题，试试按提示操作</div>
+    <div style="font-size:13px;color:#bbb">点击：桌子、储物柜、时钟与大门（支持返回/重置）</div>
   </header>
 
   <div id="stageWrap">
     <div id="stage">
-      <!-- SVG scene (全部用矢量绘制)。注意：svg 本身 set pointer-events:none，上层按钮负责交互 -->
       <svg viewBox="0 0 960 520" style="width:100%;height:100%;" aria-hidden="true">
-        <defs>
-          <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stop-color="#071017"/><stop offset="1" stop-color="#0f0810"/>
-          </linearGradient>
-        </defs>
+        <defs><linearGradient id="bg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#071017"/><stop offset="1" stop-color="#0f0810"/></linearGradient></defs>
         <rect x="0" y="0" width="960" height="520" fill="url(#bg)"/>
-        <!-- aesthetic elements -->
         <rect x="40" y="120" width="220" height="320" rx="6" fill="#1a1e21" stroke="#0e1011"/>
         <rect x="360" y="288" width="280" height="120" rx="10" fill="#161212" stroke="rgba(255,255,255,0.03)"/>
         <rect x="700" y="110" width="160" height="320" rx="8" fill="#081216" stroke="#121212"/>
-        <g transform="translate(520,90)">
-          <circle r="36" fill="#0b0b0b" stroke="#1a1a1a"/>
-          <circle r="30" fill="#0e1416"/>
-          <g stroke="#c9b99f" stroke-width="2" stroke-linecap="round">
-            <line x1="0" y1="0" x2="0" y2="-12" transform="rotate(210)"/>
-            <line x1="0" y1="0" x2="0" y2="-18" transform="rotate(40)"/>
-          </g>
-        </g>
+        <g transform="translate(520,90)"><circle r="36" fill="#0b0b0b" stroke="#1a1a1a"/><circle r="30" fill="#0e1416"/><g stroke="#c9b99f" stroke-width="2" stroke-linecap="round"><line x1="0" y1="0" x2="0" y2="-12" transform="rotate(210)"/><line x1="0" y1="0" x2="0" y2="-18" transform="rotate(40)"/></g></g>
       </svg>
 
-      <!-- hotspots (上层按钮确保获得事件) -->
+      <!-- hotspots -->
       <button class="hot" id="hot_lock" title="储物柜" style="left:40px;top:120px;width:220px;height:320px;"></button>
       <button class="hot" id="hot_desk" title="桌子" style="left:360px;top:288px;width:280px;height:120px;"></button>
       <button class="hot" id="hot_clock" title="时钟" style="left:496px;top:54px;width:72px;height:72px;"></button>
@@ -127,9 +113,13 @@
       </div>
 
       <div id="win" class="hidden" aria-hidden="true">
-        <div>
+        <div style="min-width:300px">
           <div style="font-size:30px;font-weight:700">你成功离开了学校</div>
-          <div style="margin-top:10px;color:#ccc">祝贺！这是修正版 Demo</div>
+          <div style="margin-top:10px;color:#ccc">演示完成</div>
+          <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
+            <button class="btn" id="btn_return">返回游戏</button>
+            <button class="btn secondary" id="btn_reset2">重置游戏</button>
+          </div>
         </div>
       </div>
     </div>
@@ -146,61 +136,81 @@
 </div>
 
 <script>
-  // 初始状态（确保 false / 空）
-  const state = {
+  // 初始状态
+  const initialState = () => ({
     inventory: [null, null, null],
     dials: [0,0,0],
     code: "731",
     hasKey: false,
-    lockOpen: false
-  };
+    lockOpen: false,
+    winShown: false
+  });
+  let state = initialState();
 
-  // 显示/隐藏 modal
-  function showModal(id){
-    document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden'));
-    const el = document.getElementById(id);
-    if(el) el.classList.remove('hidden');
-  }
+  // UI helpers
+  function showModal(id){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); const el=document.getElementById(id); if(el) el.classList.remove('hidden'); }
   function hideModals(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); }
 
-  // 信息弹窗
-  function showMessage(title, body){
-    document.getElementById('msg_title').textContent = title;
-    document.getElementById('msg_body').innerHTML = body;
-    showModal('modal_msg');
+  function showMessage(title, body){ document.getElementById('msg_title').textContent = title; document.getElementById('msg_body').innerHTML = body; showModal('modal_msg'); }
+
+  // reset whole game
+  function resetGame(){
+    // reset state
+    state = initialState();
+    // reset dials UI
+    ['d0','d1','d2'].forEach((id,i)=> document.getElementById(id).textContent = state.dials[i]);
+    // reset inventory UI
+    for(let i=0;i<3;i++){ const slot=document.getElementById('inv_'+i); slot.innerHTML = '空'; slot.dataset.item=''; slot.onclick=null; slot.style.cursor='default'; }
+    // hide modals & win
+    hideModals();
+    document.getElementById('win').classList.add('hidden');
+    // hint
+    document.getElementById('hint').textContent = '提示：点击桌子或储物柜寻找线索';
   }
 
-  // Hotspots
-  document.getElementById('hot_desk').addEventListener('click', ()=>{
-    // 优先提示：如果还没拿纸条就打开 modal
-    if(state.inventory.includes('note')){
-      showMessage('桌子', '桌上没有别的了。');
-    } else {
-      showModal('modal_note');
+  // take item to first empty slot
+  function takeItem(id, svgHtml){
+    if(state.inventory.includes(id)) return;
+    for(let i=0;i<state.inventory.length;i++){
+      if(state.inventory[i]===null){
+        state.inventory[i]=id;
+        const slot=document.getElementById('inv_'+i);
+        slot.innerHTML = svgHtml;
+        slot.dataset.item=id;
+        slot.style.cursor='pointer';
+        slot.onclick = ()=> useItem(id);
+        if(id==='key') state.hasKey = true;
+        return;
+      }
     }
-  });
+    showMessage('物品栏已满','无法拿到物品，物品栏已满。');
+  }
 
+  function useItem(id){
+    if(id==='note') showMessage('纸条','纸条：门的密码是 731（线索）');
+    else if(id==='key') showModal('modal_door');
+    else showMessage('提示','无法使用该物品');
+  }
+
+  // Hotspots logic
+  document.getElementById('hot_desk').addEventListener('click', ()=>{
+    if(state.inventory.includes('note')) showMessage('桌子','桌上没有别的了。');
+    else showModal('modal_note');
+  });
   document.getElementById('take_note').addEventListener('click', ()=>{
-    hideModals();
-    takeItem('note', svgNote());
-    showMessage('拿到纸条', '纸条已放入物品栏。提示：课表和时钟可能有关联。');
+    hideModals(); takeItem('note', svgNote()); showMessage('拿到纸条','纸条已放入物品栏。');
   });
-
   document.getElementById('close_note').addEventListener('click', ()=> hideModals());
 
-  document.getElementById('hot_lock').addEventListener('click', ()=>{
-    if(state.lockOpen){
-      showMessage('箱子', '箱子已经被打开了，里面空空如也。');
-    } else {
-      showModal('modal_lock');
-    }
+  document.getElementById('hot_lock').addEventListener('click', ()=> {
+    if(state.lockOpen) showMessage('箱子','箱子已经打开，里面空空如也。');
+    else showModal('modal_lock');
   });
 
-  // 拨盘操作
+  // dials
   document.querySelectorAll('.small').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const idx = parseInt(btn.dataset.index,10);
-      const up = btn.dataset.action === 'up';
+    btn.addEventListener('click', ()=> {
+      const idx = +btn.dataset.index; const up = btn.dataset.action === 'up';
       state.dials[idx] = up ? (state.dials[idx]+1)%10 : (state.dials[idx]+9)%10;
       document.getElementById('d'+idx).textContent = state.dials[idx];
     });
@@ -209,77 +219,55 @@
   document.getElementById('try_open').addEventListener('click', ()=>{
     const input = state.dials.join('');
     if(input === state.code){
-      state.lockOpen = true;
-      hideModals();
-      takeItem('key', svgKey());
-      showMessage('成功', '密码正确！你从箱子里拿到一把钥匙。');
-    } else {
-      showMessage('失败', '密码不对，箱子没有动静。');
-    }
+      state.lockOpen = true; hideModals(); takeItem('key', svgKey()); showMessage('成功','密码正确！你从箱子里拿到一把钥匙。');
+    } else showMessage('失败','密码不对，箱子没有动静。');
   });
   document.getElementById('close_lock').addEventListener('click', ()=> hideModals());
 
-  document.getElementById('hot_clock').addEventListener('click', ()=>{
-    showMessage('墙上时钟', '时针、分针的位置看起来像是数字提示：7、3、1。');
-  });
+  document.getElementById('hot_clock').addEventListener('click', ()=> showMessage('墙上时钟','时针、分针的位置像数字提示：7、3、1。'));
 
   document.getElementById('hot_door').addEventListener('click', ()=> showModal('modal_door'));
   document.getElementById('close_door').addEventListener('click', ()=> hideModals());
 
   document.getElementById('use_key').addEventListener('click', ()=>{
     if(state.hasKey){
-      hideModals();
+      // show win overlay (but make sure state.winShown flips)
+      state.winShown = true;
       document.getElementById('win').classList.remove('hidden');
-    } else {
-      showMessage('没有钥匙', '你没有钥匙，无法打开校门。');
-    }
+      hideModals();
+    } else showMessage('没有钥匙','你没有钥匙，无法打开校门。');
   });
 
-  // 物品栏操作
-  function takeItem(id, svgHtml){
-    if(state.inventory.includes(id)) return;
-    for(let i=0;i<state.inventory.length;i++){
-      if(state.inventory[i]===null){
-        state.inventory[i] = id;
-        const slot = document.getElementById('inv_'+i);
-        slot.innerHTML = svgHtml;
-        slot.dataset.item = id;
-        slot.style.cursor = 'pointer';
-        slot.onclick = ()=> useItem(id);
-        if(id === 'key') state.hasKey = true;
-        return;
-      }
-    }
-    // 如果栏已满，提示
-    showMessage('物品栏已满', '请先处理物品栏中的物品。');
-  }
+  // win overlay buttons
+  document.getElementById('btn_return').addEventListener('click', ()=>{
+    // just hide win overlay and return to game (do not reset items)
+    document.getElementById('win').classList.add('hidden');
+    state.winShown = false;
+    showMessage('返回','已返回游戏，你可以继续探索或重置。');
+  });
+  document.getElementById('btn_reset2').addEventListener('click', ()=> resetGame());
 
-  function useItem(id){
-    if(id==='note'){
-      showMessage('纸条', '纸条：门的密码是 731（来自线索）');
-    } else if(id==='key'){
-      showModal('modal_door');
-    } else {
-      showMessage('物品', '无法使用该物品。');
-    }
-  }
+  // header reset
+  document.getElementById('btn_reset').addEventListener('click', ()=> {
+    if(confirm('确定要重置游戏吗？当前进度会丢失。')) resetGame();
+  });
 
+  // message modal close
   document.getElementById('close_msg').addEventListener('click', ()=> hideModals());
 
-  // 键盘快捷（便于测试）
+  // keyboard helpers (测试用)
   window.addEventListener('keydown', e=>{
-    if(e.key === 'h') showMessage('快捷提示', '点击：桌子、储物柜、时钟、大门。');
-    if(e.key === '0'){ state.dials = [7,3,1]; document.getElementById('d0').textContent='7';document.getElementById('d1').textContent='3';document.getElementById('d2').textContent='1'; }
-    if(e.key === 'Escape') hideModals();
+    if(e.key==='h') showMessage('快捷提示','点击：桌子、储物柜、时钟、大门。');
+    if(e.key==='0'){ state.dials = [7,3,1]; ['d0','d1','d2'].forEach((id,i)=>document.getElementById(id).textContent=state.dials[i]); }
+    if(e.key==='Escape') hideModals();
   });
 
-  // 内联 SVG 图标
-  function svgNote(){
-    return '<svg viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#efe9d5"/><text x="24" y="30" font-size="12" fill="#1a1a1a" text-anchor="middle">纸</text></svg>';
-  }
-  function svgKey(){
-    return '<svg viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#111"/><g transform="translate(6,8)"><path d="M30 6a6 6 0 1 0-8.485 8.485L13 23v4h4l6.515-6.515A6 6 0 0 0 30 6z" fill="#d9a36b"/></g></svg>';
-  }
+  // inline SVG for items
+  function svgNote(){ return '<svg viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#efe9d5"/><text x="24" y="30" font-size="12" fill="#1a1a1a" text-anchor="middle">纸</text></svg>'; }
+  function svgKey(){ return '<svg viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#111"/><g transform="translate(6,8)"><path d="M30 6a6 6 0 1 0-8.485 8.485L13 23v4h4l6.515-6.515A6 6 0 0 0 30 6z" fill="#d9a36b"/></g></svg>'; }
+
+  // ensure starting clean
+  resetGame();
 </script>
 </body>
 </html>
