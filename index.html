@@ -1,641 +1,298 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>湖畔记忆 - 锈湖风格解谜游戏</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Courier New', monospace;
-        }
-        
-        body {
-            background-color: #1a1a2e;
-            color: #c9c9c9;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(28, 58, 83, 0.2) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(40, 82, 67, 0.2) 0%, transparent 20%);
-        }
-        
-        .game-container {
-            width: 900px;
-            height: 600px;
-            position: relative;
-            border: 2px solid #3a506b;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }
-        
-        .screen {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: none;
-            background-color: #162447;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%233a506b' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
-        }
-        
-        #start-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-        }
-        
-        #game-screen {
-            display: flex;
-        }
-        
-        .game-title {
-            font-size: 48px;
-            color: #8db596;
-            text-shadow: 3px 3px 0 #1f4068;
-            margin-bottom: 30px;
-            letter-spacing: 3px;
-        }
-        
-        .game-subtitle {
-            font-size: 20px;
-            margin-bottom: 40px;
-            color: #7a9eb1;
-        }
-        
-        .btn {
-            background-color: #3a506b;
-            color: #e1e5f2;
-            border: none;
-            padding: 12px 30px;
-            font-size: 18px;
-            cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s;
-            border: 1px solid #5b7a9d;
-        }
-        
-        .btn:hover {
-            background-color: #4a6385;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        .scene {
-            flex: 3;
-            height: 100%;
-            position: relative;
-            background-color: #1f4068;
-            border-right: 1px solid #3a506b;
-        }
-        
-        .inventory {
-            flex: 1;
-            height: 100%;
-            background-color: #162447;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .inventory-title {
-            text-align: center;
-            margin-bottom: 15px;
-            color: #8db596;
-            font-size: 18px;
-            border-bottom: 1px solid #3a506b;
-            padding-bottom: 8px;
-        }
-        
-        .inventory-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .inventory-item {
-            width: 60px;
-            height: 60px;
-            background-color: #1f4068;
-            border: 1px solid #3a506b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .inventory-item:hover {
-            background-color: #2a5285;
-        }
-        
-        .inventory-item img {
-            max-width: 50px;
-            max-height: 50px;
-        }
-        
-        .object {
-            position: absolute;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        
-        .object:hover {
-            transform: scale(1.05);
-        }
-        
-        .dialog {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(26, 26, 46, 0.8);
-            padding: 15px;
-            border-top: 2px solid #3a506b;
-            display: none;
-        }
-        
-        .dialog-text {
-            font-size: 16px;
-            line-height: 1.5;
-            margin-bottom: 10px;
-            color: #e1e5f2;
-        }
-        
-        .dialog-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            color: #8db596;
-            cursor: pointer;
-            font-size: 20px;
-        }
-        
-        .note {
-            position: absolute;
-            width: 200px;
-            height: 150px;
-            background-color: #e8d5a1;
-            color: #3a2c1a;
-            padding: 15px;
-            font-size: 14px;
-            line-height: 1.4;
-            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 100;
-        }
-        
-        .puzzle-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #1f4068;
-            padding: 20px;
-            border: 2px solid #3a506b;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-            display: none;
-            z-index: 100;
-        }
-        
-        .puzzle-title {
-            text-align: center;
-            margin-bottom: 15px;
-            color: #8db596;
-        }
-        
-        .code-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            justify-content: center;
-        }
-        
-        .code-digit {
-            width: 40px;
-            height: 50px;
-            text-align: center;
-            font-size: 24px;
-            background-color: #162447;
-            border: 1px solid #3a506b;
-            color: #e1e5f2;
-        }
-        
-        .end-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-        }
-        
-        .end-title {
-            font-size: 36px;
-            color: #8db596;
-            margin-bottom: 20px;
-        }
-        
-        .end-text {
-            font-size: 18px;
-            line-height: 1.6;
-            max-width: 600px;
-            margin-bottom: 30px;
-        }
-        
-        .credits {
-            margin-top: 40px;
-            font-size: 14px;
-            color: #7a9eb1;
-        }
-        
-        /* 对象位置 */
-        #cabinet {
-            top: 100px;
-            left: 50px;
-            width: 120px;
-            height: 200px;
-            background-color: #5b4636;
-            border: 2px solid #3a2c1a;
-        }
-        
-        #painting {
-            top: 80px;
-            right: 100px;
-            width: 150px;
-            height: 150px;
-            background-color: #2a5285;
-            border: 5px solid #3a2c1a;
-        }
-        
-        #desk {
-            bottom: 100px;
-            left: 200px;
-            width: 200px;
-            height: 80px;
-            background-color: #5b4636;
-            border: 2px solid #3a2c1a;
-        }
-        
-        #safe {
-            bottom: 120px;
-            right: 150px;
-            width: 100px;
-            height: 120px;
-            background-color: #3a506b;
-            border: 2px solid #1f4068;
-        }
-        
-        .object-label {
-            position: absolute;
-            bottom: -25px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            color: #c9c9c9;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>湖南师大附中 · SVG 诡异解谜 Demo</title>
+<style>
+  :root{--bg:#070609;--accent:#d9a36b;}
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Segoe UI,Helvetica,Arial;color:#eee}
+  #game{max-width:1000px;margin:20px auto;border-radius:8px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+  header{display:flex;align-items:center;padding:12px;background:linear-gradient(90deg,#07080a,#0b0b0b);border-bottom:1px solid rgba(255,255,255,0.03)}
+  header h1{margin:0;font-size:18px}
+  #stageWrap{background:linear-gradient(180deg,#071017 0%, #0b0709 100%);padding:18px}
+  #stage{width:960px;height:520px;margin:0 auto;position:relative;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);background:#081018}
+  /* hotspots */
+  .hot{position:absolute;background:transparent;border:0;cursor:pointer}
+  .hot:focus{outline:2px solid rgba(217,163,107,0.18)}
+  /* UI */
+  #hint{position:absolute;right:18px;top:18px;background:rgba(0,0,0,0.45);padding:8px 12px;border-radius:6px;font-size:13px;color:#ddd;border:1px solid rgba(255,255,255,0.03)}
+  #inventory{height:84px;padding:10px;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-top:1px solid rgba(255,255,255,0.03)}
+  .inv-slot{width:64px;height:64px;border-radius:6px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;color:#cfcfcf;font-size:12px;border:1px solid rgba(255,255,255,0.03)}
+  .modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;background:#0b0b0b;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 20px 60px rgba(0,0,0,0.75);z-index:40}
+  .hidden{display:none}
+  .btn{display:inline-block;padding:8px 12px;border-radius:6px;background:var(--accent);color:#111;text-decoration:none;font-weight:700;border:none;cursor:pointer}
+  .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#ddd}
+  .dials{display:flex;gap:8px;margin:10px 0}
+  .dial{width:56px;height:56px;background:#111;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(255,255,255,0.04)}
+  .small{font-size:12px;padding:6px 8px;border-radius:6px;background:#222;border:1px solid rgba(255,255,255,0.03);color:#fff;cursor:pointer}
+  #win{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.86));display:flex;align-items:center;justify-content:center;z-index:80;color:#f7f2e7;padding:24px;text-align:center;font-size:20px}
+</style>
 </head>
 <body>
-    <div class="game-container">
-        <!-- 开始屏幕 -->
-        <div class="screen" id="start-screen">
-            <h1 class="game-title">湖畔记忆</h1>
-            <p class="game-subtitle">一个锈湖风格的神秘解谜体验</p>
-            <button class="btn" id="start-btn">开始游戏</button>
-            <button class="btn" id="instructions-btn">游戏说明</button>
-            <div class="credits">灵感来源于锈湖(Rusty Lake)系列游戏</div>
+<div id="game">
+  <header>
+    <h1>湖南师大附中 · SVG 解谜 Demo</h1>
+    <div style="flex:1"></div>
+    <div style="font-size:13px;color:#bbb">演示：点击场景中的可交互物件</div>
+  </header>
+
+  <div id="stageWrap">
+    <div id="stage">
+      <!-- SVG scene (全部用矢量绘制) -->
+      <svg viewBox="0 0 960 520" style="width:100%;height:100%;display:block;filter:contrast(1.02) saturate(.7)">
+        <defs>
+          <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#071017"/><stop offset="1" stop-color="#0f0810"/>
+          </linearGradient>
+        </defs>
+
+        <rect x="0" y="0" width="960" height="520" fill="url(#bg)"/>
+
+        <!-- ceiling lights -->
+        <g opacity="0.6">
+          <rect x="180" y="20" width="600" height="40" rx="8" fill="#0b1b22"/>
+          <rect x="220" y="28" width="520" height="24" rx="6" fill="#12202a"/>
+        </g>
+
+        <!-- lockers left -->
+        <g transform="translate(40,120)">
+          <rect x="0" y="0" width="220" height="320" rx="6" fill="#1a1e21" stroke="#0e1011"/>
+          <!-- locker doors -->
+          <g fill="#0f1618" stroke="#0c0c0c" opacity="0.95">
+            <rect x="8" y="12" width="96" height="148" rx="4"/>
+            <rect x="116" y="12" width="96" height="148" rx="4"/>
+            <rect x="8" y="170" width="96" height="138" rx="4"/>
+            <rect x="116" y="170" width="96" height="138" rx="4"/>
+          </g>
+        </g>
+
+        <!-- desk center -->
+        <g transform="translate(360,320)">
+          <rect x="-140" y="-32" width="280" height="120" rx="10" fill="#161212" stroke="rgba(255,255,255,0.03)"/>
+          <rect x="-30" y="-6" width="80" height="56" rx="6" fill="#f7f4e9" transform="rotate(-4)"/>
+          <!-- small folded paper edge -->
+          <path d="M5 8 L18 8 L16 18 L5 18z" fill="#efe9d9" transform="translate(-30,-6) rotate(-4)"/>
+        </g>
+
+        <!-- door right -->
+        <g id="doorSvg" transform="translate(700,110)">
+          <rect x="0" y="0" width="160" height="320" rx="8" fill="#081216" stroke="#121212"/>
+          <rect x="12" y="36" width="136" height="220" rx="6" fill="#0b1011"/>
+          <circle cx="36" cy="210" r="8" fill="#cdb79a"/>
+        </g>
+
+        <!-- clock -->
+        <g id="clockSvg" transform="translate(520,90)">
+          <circle cx="0" cy="0" r="36" fill="#0b0b0b" stroke="#1a1a1a"/>
+          <circle cx="0" cy="0" r="30" fill="#0e1416"/>
+          <g stroke="#c9b99f" stroke-width="2" stroke-linecap="round">
+            <line x1="0" y1="0" x2="0" y2="-12" transform="rotate(210)"/>
+            <line x1="0" y1="0" x2="0" y2="-18" transform="rotate(40)"/>
+          </g>
+        </g>
+
+        <!-- timetable poster -->
+        <g transform="translate(260,60)">
+          <rect x="0" y="0" width="120" height="160" rx="8" fill="#0f0e0f" stroke="#151515"/>
+          <rect x="10" y="12" width="100" height="136" rx="6" fill="#e9e6db" opacity="0.95"/>
+          <text x="18" y="34" font-size="12" fill="#0b0b0b">班级：高一（1）班</text>
+          <text x="18" y="52" font-size="11" fill="#0b0b0b">语文 08:00</text>
+          <text x="18" y="70" font-size="11" fill="#0b0b0b">数学 09:00</text>
+        </g>
+
+        <!-- subtle grain overlay -->
+        <rect x="0" y="0" width="960" height="520" fill="black" opacity="0.04" style="mix-blend-mode:overlay" />
+      </svg>
+
+      <!-- clickable hotspots (absolute overlay to simplify hit areas) -->
+      <button class="hot" id="hot_desk" title="桌子" style="left:360px;top:318px;width:280px;height:140px;"></button>
+      <button class="hot" id="hot_lock" title="储物柜" style="left:40px;top:120px;width:220px;height:320px;"></button>
+      <button class="hot" id="hot_clock" title="时钟" style="left:484px;top:54px;width:72px;height:72px;"></button>
+      <button class="hot" id="hot_door" title="校门" style="left:700px;top:110px;width:160px;height:320px;"></button>
+
+      <div id="hint">提示：点击桌子或储物柜寻找线索</div>
+
+      <!-- modals -->
+      <div id="modal_note" class="modal hidden">
+        <h2>纸条</h2>
+        <p>纸条写着：门的密码是 三个数字。看墙上的时钟与课表。</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" id="close_note">收起并拿走纸条</button>
         </div>
-        
-        <!-- 游戏主屏幕 -->
-        <div class="screen" id="game-screen">
-            <div class="scene" id="scene">
-                <!-- 场景中的可交互对象 -->
-                <div class="object" id="cabinet">
-                    <div class="object-label">柜子</div>
-                </div>
-                <div class="object" id="painting">
-                    <div class="object-label">画作</div>
-                </div>
-                <div class="object" id="desk">
-                    <div class="object-label">书桌</div>
-                </div>
-                <div class="object" id="safe">
-                    <div class="object-label">保险箱</div>
-                </div>
-                
-                <!-- 对话框 -->
-                <div class="dialog" id="dialog">
-                    <div class="dialog-text" id="dialog-text"></div>
-                    <div class="dialog-close" id="dialog-close">×</div>
-                </div>
-                
-                <!-- 纸条 -->
-                <div class="note" id="note">
-                    <div id="note-content"></div>
-                    <div style="text-align: center; margin-top: 10px;">
-                        <button class="btn" id="note-close" style="padding: 5px 15px; font-size: 12px;">关闭</button>
-                    </div>
-                </div>
-                
-                <!-- 密码谜题 -->
-                <div class="puzzle-container" id="puzzle-container">
-                    <h3 class="puzzle-title">输入密码</h3>
-                    <div class="code-input">
-                        <input type="text" class="code-digit" maxlength="1">
-                        <input type="text" class="code-digit" maxlength="1">
-                        <input type="text" class="code-digit" maxlength="1">
-                        <input type="text" class="code-digit" maxlength="1">
-                    </div>
-                    <div style="text-align: center;">
-                        <button class="btn" id="puzzle-submit">确认</button>
-                        <button class="btn" id="puzzle-cancel">取消</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="inventory">
-                <h3 class="inventory-title">物品栏</h3>
-                <div class="inventory-items" id="inventory-items">
-                    <!-- 物品将通过JavaScript动态添加 -->
-                </div>
-                <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid #3a506b;">
-                    <button class="btn" id="menu-btn" style="width: 100%;">返回主菜单</button>
-                </div>
-            </div>
+      </div>
+
+      <div id="modal_lock" class="modal hidden">
+        <h2>古旧密码箱</h2>
+        <p>箱子锁有三个拨盘，试着输入密码。</p>
+        <div class="dials">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <button class="small" data-action="up" data-index="0">▲</button>
+            <div class="dial" id="d0">0</div>
+            <button class="small" data-action="down" data-index="0">▼</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <button class="small" data-action="up" data-index="1">▲</button>
+            <div class="dial" id="d1">0</div>
+            <button class="small" data-action="down" data-index="1">▼</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <button class="small" data-action="up" data-index="2">▲</button>
+            <div class="dial" id="d2">0</div>
+            <button class="small" data-action="down" data-index="2">▼</button>
+          </div>
         </div>
-        
-        <!-- 结局屏幕 -->
-        <div class="screen" id="end-screen">
-            <h2 class="end-title" id="end-title">结局</h2>
-            <p class="end-text" id="end-text"></p>
-            <button class="btn" id="restart-btn">重新开始</button>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" id="try_open">尝试打开</button>
+          <button class="btn secondary" id="close_lock">关闭</button>
         </div>
+      </div>
+
+      <div id="modal_door" class="modal hidden">
+        <h2>校门</h2>
+        <p>大门需要钥匙才能打开。</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" id="use_key">用当前钥匙尝试打开</button>
+          <button class="btn secondary" id="close_door">收起</button>
+        </div>
+      </div>
+
+      <div id="modal_msg" class="modal hidden">
+        <h2 id="msg_title">消息</h2>
+        <p id="msg_body">内容</p>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn" id="close_msg">确定</button>
+        </div>
+      </div>
+
+      <div id="win" class="hidden">
+        <div>
+          <div style="font-size:30px;font-weight:700">你成功离开了学校</div>
+          <div style="margin-top:10px;color:#ccc">Demo：完全用 SVG 绘制的场景与交互</div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // 游戏状态
-        const gameState = {
-            currentScreen: 'start',
-            inventory: [],
-            foundKey: false,
-            foundNote: false,
-            safeOpened: false,
-            code: '1853' // 预设密码
-        };
+    <div id="inventory">
+      <div style="width:12px"></div>
+      <div class="inv-slot" id="inv_0">空</div>
+      <div class="inv-slot" id="inv_1">空</div>
+      <div class="inv-slot" id="inv_2">空</div>
+      <div style="flex:1"></div>
+      <div style="font-size:12px;color:#bbb;padding-right:12px">物品栏</div>
+    </div>
+  </div>
+</div>
 
-        // DOM元素
-        const startScreen = document.getElementById('start-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const endScreen = document.getElementById('end-screen');
-        const startBtn = document.getElementById('start-btn');
-        const instructionsBtn = document.getElementById('instructions-btn');
-        const menuBtn = document.getElementById('menu-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const dialog = document.getElementById('dialog');
-        const dialogText = document.getElementById('dialog-text');
-        const dialogClose = document.getElementById('dialog-close');
-        const note = document.getElementById('note');
-        const noteContent = document.getElementById('note-content');
-        const noteClose = document.getElementById('note-close');
-        const puzzleContainer = document.getElementById('puzzle-container');
-        const puzzleSubmit = document.getElementById('puzzle-submit');
-        const puzzleCancel = document.getElementById('puzzle-cancel');
-        const inventoryItems = document.getElementById('inventory-items');
-        const endTitle = document.getElementById('end-title');
-        const endText = document.getElementById('end-text');
+<script>
+  // state
+  const state = { inventory:[null,null,null], dials:[0,0,0], code:"731", hasKey:false, lockOpen:false };
 
-        // 场景对象
-        const cabinet = document.getElementById('cabinet');
-        const painting = document.getElementById('painting');
-        const desk = document.getElementById('desk');
-        const safe = document.getElementById('safe');
+  // utility: modals
+  function showModal(id){
+    document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
+  function hideModals(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); }
 
-        // 初始化游戏
-        function initGame() {
-            // 设置事件监听器
-            startBtn.addEventListener('click', showGameScreen);
-            instructionsBtn.addEventListener('click', showInstructions);
-            menuBtn.addEventListener('click', showStartScreen);
-            restartBtn.addEventListener('click', showStartScreen);
-            dialogClose.addEventListener('click', hideDialog);
-            noteClose.addEventListener('click', hideNote);
-            puzzleSubmit.addEventListener('click', checkPuzzle);
-            puzzleCancel.addEventListener('click', hidePuzzle);
-            
-            // 场景对象点击事件
-            cabinet.addEventListener('click', interactWithCabinet);
-            painting.addEventListener('click', interactWithPainting);
-            desk.addEventListener('click', interactWithDesk);
-            safe.addEventListener('click', interactWithSafe);
-            
-            // 初始化物品栏
-            updateInventory();
-        }
+  // hotspots
+  document.getElementById('hot_desk').addEventListener('click', ()=> {
+    if(state.inventory.includes('note')) {
+      showMessage('纸条已在物品栏','你已经拿走了纸条。');
+    } else {
+      showModal('modal_note');
+    }
+  });
+  document.getElementById('close_note').addEventListener('click', ()=> {
+    hideModals();
+    takeItem('note', svgNote());
+  });
 
-        // 显示游戏屏幕
-        function showGameScreen() {
-            startScreen.style.display = 'none';
-            gameScreen.style.display = 'flex';
-            gameState.currentScreen = 'game';
-            
-            // 播放环境音效（模拟）
-            playAmbientSound();
-        }
+  document.getElementById('hot_lock').addEventListener('click', ()=> {
+    if(state.lockOpen){
+      showMessage('箱子已空','箱子里什么也没有了。');
+    } else showModal('modal_lock');
+  });
 
-        // 显示开始屏幕
-        function showStartScreen() {
-            gameScreen.style.display = 'none';
-            endScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-            gameState.currentScreen = 'start';
-            
-            // 重置游戏状态
-            resetGame();
-        }
+  // dial controls
+  document.querySelectorAll('.small').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      const action = btn.dataset.action, idx = +btn.dataset.index;
+      state.dials[idx] = (action==='up') ? (state.dials[idx]+1)%10 : (state.dials[idx]+9)%10;
+      document.getElementById('d'+idx).textContent = state.dials[idx];
+    });
+  });
 
-        // 显示游戏说明
-        function showInstructions() {
-            showDialog("在这个神秘的湖畔房间中探索，寻找线索并解开谜题。点击房间中的物品进行交互，收集有用的物品并解决谜题。你的目标是打开保险箱并揭开房间的秘密。");
-        }
+  document.getElementById('try_open').addEventListener('click', ()=> {
+    const input = state.dials.join('');
+    if(input === state.code){
+      state.lockOpen = true;
+      hideModals();
+      takeItem('key', svgKey());
+      showMessage('打开了','你从箱子里拿到一把钥匙。');
+    } else {
+      showMessage('失败','密码不对，箱子发出沉闷的声响。');
+    }
+  });
+  document.getElementById('close_lock').addEventListener('click', ()=> hideModals());
 
-        // 显示对话框
-        function showDialog(text) {
-            dialogText.textContent = text;
-            dialog.style.display = 'block';
-        }
+  document.getElementById('hot_clock').addEventListener('click', ()=> {
+    showMessage('墙上时钟','时钟指针停在不寻常的角度，似乎在暗示数字 7、3、1。');
+  });
 
-        // 隐藏对话框
-        function hideDialog() {
-            dialog.style.display = 'none';
-        }
+  document.getElementById('hot_door').addEventListener('click', ()=> showModal('modal_door'));
+  document.getElementById('close_door').addEventListener('click', ()=> hideModals());
+  document.getElementById('use_key').addEventListener('click', ()=> {
+    if(state.hasKey){
+      hideModals();
+      document.getElementById('win').classList.remove('hidden');
+    } else showMessage('没有钥匙','你没有钥匙，无法打开校门。');
+  });
 
-        // 显示纸条
-        function showNote(content) {
-            noteContent.textContent = content;
-            note.style.display = 'block';
-        }
+  // message modal
+  function showMessage(title, body){
+    document.getElementById('msg_title').textContent = title;
+    document.getElementById('msg_body').innerHTML = body;
+    showModal('modal_msg');
+  }
+  document.getElementById('close_msg').addEventListener('click', ()=> hideModals());
 
-        // 隐藏纸条
-        function hideNote() {
-            note.style.display = 'none';
-        }
+  // inventory functions
+  function takeItem(id, svgHtml){
+    if(state.inventory.includes(id)) return;
+    for(let i=0;i<state.inventory.length;i++){
+      if(state.inventory[i]===null){
+        state.inventory[i] = id;
+        const slot = document.getElementById('inv_'+i);
+        slot.innerHTML = svgHtml;
+        slot.dataset.item = id;
+        slot.style.cursor = 'pointer';
+        slot.onclick = ()=> useItem(id);
+        if(id==='key') state.hasKey = true;
+        break;
+      }
+    }
+  }
 
-        // 显示密码谜题
-        function showPuzzle() {
-            puzzleContainer.style.display = 'block';
-            
-            // 清空输入框
-            const inputs = puzzleContainer.querySelectorAll('.code-digit');
-            inputs.forEach(input => input.value = '');
-            inputs[0].focus();
-        }
+  function useItem(id){
+    if(id==='note') showMessage('纸条','纸条上写着：门的密码是 731');
+    else if(id==='key') showModal('modal_door');
+  }
 
-        // 隐藏密码谜题
-        function hidePuzzle() {
-            puzzleContainer.style.display = 'none';
-        }
+  // small debug shortcuts
+  window.addEventListener('keydown', e=>{
+    if(e.key==='h') showMessage('快捷','试试：点击桌子、储物柜、时钟与大门。');
+    if(e.key==='0'){ state.dials=[7,3,1]; document.getElementById('d0').textContent='7';document.getElementById('d1').textContent='3';document.getElementById('d2').textContent='1'; }
+    if(e.key==='Escape') hideModals();
+  });
 
-        // 检查密码
-        function checkPuzzle() {
-            const inputs = puzzleContainer.querySelectorAll('.code-digit');
-            let enteredCode = '';
-            inputs.forEach(input => {
-                enteredCode += input.value;
-            });
-            
-            if (enteredCode === gameState.code) {
-                hidePuzzle();
-                gameState.safeOpened = true;
-                showDialog("保险箱打开了！里面有一把古老的钥匙。");
-                addToInventory('key');
-                playSound('success');
-            } else {
-                showDialog("密码错误。再试试看。");
-                playSound('error');
-                
-                // 清空输入框
-                inputs.forEach(input => input.value = '');
-                inputs[0].focus();
-            }
-        }
-
-        // 与柜子交互
-        function interactWithCabinet() {
-            if (!gameState.foundNote) {
-                gameState.foundNote = true;
-                showNote("我发现了这张藏在柜子里的纸条：\n\n'湖畔的记忆深藏心底，\n四个数字代表重要日期。\n春天开始，秋天结束，\n那一年我们相遇又分离。\n\n提示：年份的后四位'");
-                addToInventory('note');
-                playSound('discover');
-            } else {
-                showDialog("柜子是空的。");
-            }
-        }
-
-        // 与画作交互
-        function interactWithPainting() {
-            showDialog("一幅描绘湖畔的油画。画中的湖面泛着诡异的波纹，仿佛隐藏着什么秘密。画框上刻着小小的数字：1 8 5 3");
-            playSound('interact');
-        }
-
-        // 与书桌交互
-        function interactWithDesk() {
-            if (gameState.foundKey) {
-                showDialog("你用钥匙打开了书桌的抽屉。里面有一张旧照片，上面是一个站在湖边的男人。照片背面写着：'记忆即是过去，也是未来。'");
-                playSound('success');
-                setTimeout(showGoodEnding, 2000);
-            } else {
-                showDialog("书桌的抽屉锁着。你需要找到钥匙。");
-                playSound('interact');
-            }
-        }
-
-        // 与保险箱交互
-        function interactWithSafe() {
-            if (!gameState.safeOpened) {
-                showPuzzle();
-            } else {
-                showDialog("保险箱已经打开了，里面空无一物。");
-            }
-        }
-
-        // 添加到物品栏
-        function addToInventory(item) {
-            if (!gameState.inventory.includes(item)) {
-                gameState.inventory.push(item);
-                updateInventory();
-            }
-        }
-
-        // 更新物品栏显示
-        function updateInventory() {
-            inventoryItems.innerHTML = '';
-            
-            gameState.inventory.forEach(item => {
-                const itemElement = document.createElement('div');
-                itemElement.className = 'inventory-item';
-                
-                // 根据物品类型设置不同的显示
-                switch(item) {
-                    case 'note':
-                        itemElement.innerHTML = '📜';
-                        itemElement.title = '神秘纸条';
-                        itemElement.addEventListener('click', () => {
-                            showNote("我发现了这张藏在柜子里的纸条：\n\n'湖畔的记忆深藏心底，\n四个数字代表重要日期。\n春天开始，秋天结束，\n那一年我们相遇又分离。\n\n提示：年份的后四位'");
-                        });
-                        break;
-                    case 'key':
-                        itemElement.innerHTML = '🔑';
-                        itemElement.title = '古老钥匙';
-                        gameState.foundKey = true;
-                        break;
-                }
-                
-                inventoryItems.appendChild(itemElement);
-            });
-        }
-
-        // 显示好结局
-        function showGoodEnding() {
-            gameScreen.style.display = 'none';
-            endScreen.style.display = 'flex';
-            endTitle.textContent = "记忆解放";
-            endText.textContent = "你解开了湖畔的记忆之谜。照片中的男人似乎是你自己，又似乎是另一个人。记忆如同湖水，表面平静，深处却暗流涌动。你感到一种奇异的释然，仿佛过去的阴影终于散去。但锈湖的秘密远不止于此...";
-            playSound('ending');
-        }
-
-        // 重置游戏状态
-        function resetGame() {
-            gameState.inventory = [];
-            gameState.foundKey = false;
-            gameState.foundNote = false;
-            gameState.safeOpened = false;
-            updateInventory();
-        }
-
-        // 播放环境音效（模拟）
-        function playAmbientSound() {
-            // 在实际实现中，这里会播放循环的环境音效
-            console.log("播放环境音效: 风声、水声、微弱的音乐");
-        }
-
-        // 播放音效（模拟）
-        function playSound(type) {
-            // 在实际实现中，这里会根据类型播放不同的音效
-            console.log(`播放音效: ${type}`);
-        }
-
-        // 初始化游戏
-        window.addEventListener('DOMContentLoaded', initGame);
-    </script>
+  // SVG icons for inventory (inline SVG strings)
+  function svgNote(){
+    return '<svg viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#efe9d5"/><text x="24" y="30" font-size="12" fill="#1a1a1a" text-anchor="middle">纸</text></svg>';
+  }
+  function svgKey(){
+    return '<svg viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#111"/><g transform="translate(6,8)"><path d="M30 6a6 6 0 1 0-8.485 8.485L13 23v4h4l6.515-6.515A6 6 0 0 0 30 6z" fill="#d9a36b"/></g></svg>';
+  }
+</script>
 </body>
 </html>
